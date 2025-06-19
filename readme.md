@@ -1,82 +1,121 @@
-# docker test app locally
+# 📚 Containerized Book Management App on Azure AKS
 
-```
+A modern book management system deployed on Azure Kubernetes Service (AKS) with MongoDB backend. This application allows you to manage your book inventory with features like adding, updating, searching, and soft/permanent deletion of books.
+
+## 🌟 Features
+
+- 📖 Full CRUD operations for book management
+- 🔍 Search functionality by ISBN, title, or author
+- 🗑 Soft delete with restore capability
+- 🎨 Modern and responsive UI
+- 🔐 MongoDB integration with Azure Cosmos DB
+- 🚀 Containerized deployment on Azure AKS
+- ⚖ Load balanced service
+- 🔄 Multiple replicas for high availability
+
+## 🛠 Tech Stack
+
+- *Frontend*: HTML, Bootstrap 5, JavaScript
+- *Backend*: Python Flask
+- *Database*: MongoDB (Azure Cosmos DB)
+- *Container*: Docker
+- *Orchestration*: Kubernetes (AKS)
+- *Registry*: Azure Container Registry
+
+## 🚀 Local Development
+
+### Prerequisites
+
+- Docker
+- Python 3.x
+- MongoDB
+- Azure CLI (for deployment)
+
+### Running Locally with Docker
+
+1. Build the Docker image:
+bash
 docker build -t bookstore-project .
+
+
+2. Run the container:
+bash
 docker run --detach --publish 5000:5000 --name bookstore-project bookstore-project
-```
-
-# upload to azure container registry
-
-```
-docker tag bookstore-project:latest bookstore-project.azurecr.io/bookstore-project:latest
-docker push bookstore-project.azurecr.io/bookstore-project:latest
-```
-
-```
-docker login rhmprojectcr.azurecr.io -u rhmprojectcr -p L8m/pexTklqugQDCopfSbkt3g0DWI4Zn7PTE4/kQ+N+ACRAwzYrX
-docker tag bookstore-project rhmprojectcr.azurecr.io/bookstore-project:latest
-docker image push rhmprojectcr.azurecr.io/bookstore-project:latest
-```
-
-Verify the image is in the registry
 
 
-```
+The application will be available at http://localhost:5000
+
+## 📦 Azure Container Registry (ACR) Setup
+
+1. Tag the image for ACR:
+bash
+docker tag bookstore-project:latest <your-acr>.azurecr.io/bookstore-project:latest
+
+
+2. Push to ACR:
+bash
+docker push <your-acr>.azurecr.io/bookstore-project:latest
+
+
+3. Verify the image in registry:
+bash
 az login
-az acr repository list --name rhmprojectcr --output table
-```
+az acr repository list --name <your-acr> --output table
 
 
-enable annonymous pull
-```
-az acr update -n rhmprojectcr --anonymous-pull-enabled true
-```
-
-check if it is enabled
-```
-az acr show -n rhmprojectcr --query "anonymousPullEnabled" -o tsv
-```
+4. Enable anonymous pull (if needed):
+bash
+az acr update -n <your-acr> --anonymous-pull-enabled true
 
 
-# deploy to aks
+## 🌐 AKS Deployment
 
-```
-az aks get-credentials --resource-group project_rg --name rhmprojectaks
+1. Get AKS credentials:
+bash
+az aks get-credentials --resource-group <your-resource-group> --name <your-aks-cluster>
+
+
+2. Apply Kubernetes configurations:
+bash
 kubectl apply -f aks_deployment/secret.yaml
 kubectl apply -f aks_deployment/deployment.yaml
 kubectl apply -f aks_deployment/service.yaml
-```
-
-# debug error ImagePullBackOff
-
-```
-kubectl get pods
-kubectl describe pod <pod-name>
-kubectl logs <pod-name>
-```
-
-error: 
-```
-Failed to pull image "rhmprojectcr.azurecr.io/bookstore-project:latest": rpc error: code = NotFound desc = failed to pull and unpack image "rhmprojectcr.azurecr.io/bookstore-project:latest": no match for platform in manifest: not found
-```
-
-need to build the image with the correct platform
-
-```
-docker buildx build --platform linux/amd64 -t rhmprojectcr.azurecr.io/bookstore-project:latest .
-docker push rhmprojectcr.azurecr.io/bookstore-project:latest
-```
-
-# deploy to aks again
-
-```
-az aks get-credentials --resource-group project_rg --name rhmprojectaks
-kubectl apply -f aks_deployment/secret.yaml
-kubectl apply -f aks_deployment/deployment.yaml
-kubectl apply -f aks_deployment/service.yaml
-```
 
 
+### 🔍 Troubleshooting
+
+If you encounter ImagePullBackOff error on ARM-based machines:
+bash
+docker buildx build --platform linux/amd64 -t <your-acr>.azurecr.io/bookstore-project:latest .
+docker push <your-acr>.azurecr.io/bookstore-project:latest
 
 
+## 📋 Application Structure
 
+
+.
+├── app.py                  # Main Flask application
+├── templates/             # HTML templates
+│   ├── book_details.html  # Book details view
+│   ├── form.html         # Add book form
+│   ├── index.html        # Main page
+│   ├── search_results.html # Search results
+│   └── update_book.html  # Update book form
+├── aks_deployment/       # Kubernetes configurations
+│   ├── deployment.yaml   # Deployment configuration
+│   ├── secret.yaml      # MongoDB connection secret
+│   └── service.yaml     # Service configuration
+└── Dockerfile           # Docker configuration
+
+
+## 🔐 Environment Variables
+
+- MONGO_URI: MongoDB connection string (stored in Kubernetes secret)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (git checkout -b feature/amazing-feature)
+3. Commit your changes (git commit -m 'Add some amazing feature')
+4. Push to the branch (git push origin feature/amazing-feature)
+5. Open a Pull Request
