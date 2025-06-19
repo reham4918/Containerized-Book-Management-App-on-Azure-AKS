@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title if book.title else 'Book Details' }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        h1 {
+            color: #EE66A6;
+        }
+        .btn-add-new {
+            background-color: #C0EBA6;
+            border-color: #C0EBA6;
+        }
+        .btn-add-new:hover {
+            background-color: #A4D88C;
+        }
+        .btn-update {
+            background-color: #FFE893;
+            border-color: #FFE893;
+        }
+        .btn-update:hover {
+            background-color: #EED847;
+        }
+        .btn-soft-delete {
+            background-color: #A594F9;
+            border-color: #A594F9;
+        }
+        .btn-soft-delete:hover {
+            background-color: #912BBC;
+        }
+        .btn-permanent-delete {
+            background-color: #FF8A8A;
+            border-color: #FF8A8A;
+        }
+        .btn-permanent-delete:hover {
+            background-color: #C0134B;
+        }
+        .btn-success {
+            background-color: #B4E380;
+            border-color: #B4E380;
+        }
+        .btn-success:hover {
+            background-color: #A0D56C;
+        }
+        .table {
+            background-color: #FFCFEF;
+        }
+        tr:nth-child(even) {
+            background-color: #FFEBF3; /* Alternating row color */
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.btn-permanent-delete, .btn-soft-delete').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    if (!confirm("Are you sure you want to proceed?")) {
+                        event.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{{ book.title }}</h1>
+        <table class="table table-bordered">
+            <tr>
+                <th>Title</th>
+                <td>{{ book.title }}</td>
+            </tr>
+            <tr>
+                <th>Author</th>
+                <td>
+                    {% if book.author %}
+                        <strong>Name:</strong> {{ book.author.firstName if book.author.firstName else '' }} {{ book.author.lastName if book.author.lastName else '' }}<br>
+                        <strong>ID:</strong> {{ book.author.identityNo if book.author.identityNo else 'N/A' }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>ISBN</th>
+                <td>{{ book.isbn if book.isbn else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Year</th>
+                <td>{{ book.year if book.year else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Price</th>
+                <td>{{ book.price if book.price else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Page Count</th>
+                <td>{{ book.page if book.page else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                <td>{{ book.category if book.category else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Publisher</th>
+                <td>
+                    {% if book.publisher %}
+                        <strong>Name:</strong> {{ book.publisher.name if book.publisher.name else 'N/A' }}<br>
+                        <strong>ID:</strong> {{ book.publisher.id if book.publisher.id else 'N/A' }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <div class="mt-3">
+            {% if book.deleted %}
+            <form action="/books/restore/{{ book._id }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-success" title="Restore this book">Restore</button>
+            </form>
+            <form action="/books/permanent_delete/{{ book._id }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-permanent-delete" title="Permanently delete this book">Permanently Delete</button>
+            </form>
+            {% else %}
+            <form action="/books/delete/{{ book._id }}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-soft-delete" title="Mark this book as deleted">Soft Delete</button>
+            </form>
+            {% endif %}
+            <a href="/books/update/{{ book._id }}" class="btn btn-update" title="Update book details">Update</a>
+            <a href="/books" class="btn btn-secondary">Back to Book List</a>
+        </div>
+    </div>
+</body>
+</html>
